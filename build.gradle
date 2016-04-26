@@ -8,33 +8,54 @@
  */
 
 // Apply the java plugin to add support for Java
-apply plugin: 'java'
-apply plugin: 'eclipse'
-apply plugin: 'maven'
+plugins {
+    id "com.jfrog.bintray" version "1.6"
+    id "java"
+    id "eclipse"
+    id "maven"
+    id "maven-publish"
+}
+
 
 // In this section you declare where to find the dependencies of your project
 repositories {
 	mavenCentral()
+	jcenter()
 }
 
 // In this section you declare the dependencies for your production and test code
 dependencies {
-    // The production code uses the SLF4J logging API at compile time
-    // compile 'org.slf4j:slf4j-api:1.7.18'
-
-    // Declare the dependency for your favourite test framework you want to use in your tests.
-    // TestNG is also supported by the Gradle Test task. Just change the
-    // testCompile dependency to testCompile 'org.testng:testng:6.8.1' and add
-    // 'test.useTestNG()' to your build script.
-    // testCompile 'junit:junit:4.12'
-	compile 'com.google.apis:google-api-services-plus:v1-rev369-1.21.0'
+	compile "com.google.apis:google-api-services-plus:v1-rev369-1.21.0"
 	compile "org.springframework.social:spring-social-core:1.1.4.RELEASE"
 }
 
-install {
-    repositories.mavenInstaller {
-        pom.groupId = 'org.springframework.social'
-        pom.version = '0.0.1.SNAPSHOT'
-        pom.artifactId = 'spring-social-google'
+publishing {
+    publications {
+        MyPublication(MavenPublication) {
+            from components.java
+            groupId "org.springframework.social"
+            artifactId "spring-social-google"
+            version "0.0.1.SNAPSHOT"
+        }
     }
+}
+
+bintray {
+    user = project.property("bintray_user") 
+    key = project.property("bintray_key")
+    pkg {
+        repo = "maven"
+        name = "org.springframework.social:spring-social-google"
+        userOrg = "thanhhuu"
+        licenses = ["Apache-2.0"]
+        vcsUrl = "https://github.com/ThanhHuu/spring-social-google.git"
+        version {
+                name = "0.0.1.SNAPSHOT"
+                desc = "Spring social google snapshot"
+                released  = new Date()
+                vcsTag = "0.0.1.SNAPSHOT"
+                attributes = ["gradle-plugin": "com.use.less:com.use.less.gradle:gradle-useless-plugin"]
+        }
+    }
+    publications = ["MyPublication"] 
 }
